@@ -1,51 +1,72 @@
 import { SingleItem } from "./SingleItem.jsx"
-import { Container, List, TextField, MenuList, MenuItem } from "@mui/material"
-import * as types  from "./reducer/actions.jsx"
+import {
+  Button,
+  Container,
+  List,
+  TextField,
+  MenuList,
+  MenuItem,
+} from "@mui/material"
+import * as types from "./reducer/actions.jsx"
 import { useState } from "react"
 import SortByAlphaRoundedIcon from "@mui/icons-material/SortByAlphaRounded"
+import AddCircleIcon from "@mui/icons-material/AddCircle"
 
 export const SingleList = ({
-    list,
-    listNumber,
-    handleDrop,
-    dispatch
-  }) => {
-    const [sortDirectionAsc, setSortDirectionAsc] = useState(true)
-    const [filter, setFilter] = useState("")
-    const [filterList, setFilterList] = useState(null)
-    const [openAutocomplete, setOpenAutocomplete] = useState(false)
-  
-    const sortList = () => {
-      dispatch({type: types.SORT_LIST, payload: {sortDirectionAsc: sortDirectionAsc, listNumber: listNumber}})
-      setSortDirectionAsc(!sortDirectionAsc)
-    }
-  
-    const handleFilterChange = (e) => {
-      if (!e.target.value || e.target.value == "") {
-        setFilter("")
-        setOpenAutocomplete(false)
-      } else {
-        setFilter(e.target.value)
-        const autoCompleteList = list.filter((item) =>
-          item.name.toUpperCase().startsWith(e.target.value.toUpperCase())
-        )
-  
-        if (autoCompleteList.length == 1) {
-          if (filter.length > e.target.value.length) {
-            setFilter("")
-            setOpenAutocomplete(false)
-          } else {
-            setFilter(autoCompleteList[0].name)
-            setOpenAutocomplete(false)
-          }
+  list,
+  listNumber,
+  handleDrop,
+  dispatch,
+  state,
+}) => {
+  const [sortDirectionAsc, setSortDirectionAsc] = useState(true)
+  const [filter, setFilter] = useState("")
+  const [filterList, setFilterList] = useState(null)
+  const [openAutocomplete, setOpenAutocomplete] = useState(false)
+  const [newItem, setNewItem] = useState("")
+
+  const sortList = () => {
+    dispatch({
+      type: types.SORT_LIST,
+      payload: { sortDirectionAsc: sortDirectionAsc, listNumber: listNumber },
+    })
+    setSortDirectionAsc(!sortDirectionAsc)
+  }
+
+  const handleFilterChange = (e) => {
+    if (!e.target.value || e.target.value == "") {
+      setFilter("")
+      setOpenAutocomplete(false)
+    } else {
+      setFilter(e.target.value)
+      const autoCompleteList = list.filter((item) =>
+        item.name.toUpperCase().startsWith(e.target.value.toUpperCase())
+      )
+
+      if (autoCompleteList.length == 1) {
+        if (filter.length > e.target.value.length) {
+          setFilter("")
+          setOpenAutocomplete(false)
         } else {
-          setFilterList(autoCompleteList)
-          setOpenAutocomplete(true)
+          setFilter(autoCompleteList[0].name)
+          setOpenAutocomplete(false)
         }
+      } else {
+        setFilterList(autoCompleteList)
+        setOpenAutocomplete(true)
       }
     }
-  
-    return (
+  }
+
+  const handleAddNewItem = () => {
+    dispatch({
+      type: types.ADD_ITEM,
+      payload: { item: { name: newItem }, listNumber: listNumber },
+    })
+    setNewItem("")
+  }
+  return (
+    <Container>
       <List
         sx={{
           width: 1,
@@ -56,7 +77,7 @@ export const SingleList = ({
             display: "none",
           },
         }}
-        onDrop={() => handleDrop(listNumber)}
+        onDrop={() => handleDrop(listNumber, false)}
         onDragOver={(e) => e.preventDefault()}
       >
         <Container sx={{ display: "flex", flexDirection: "row", g: 0, m: 0 }}>
@@ -67,29 +88,29 @@ export const SingleList = ({
             sx={{ width: "5rem", m: 0, g: 0 }}
             onChange={handleFilterChange}
           />
-  
+
           <SortByAlphaRoundedIcon
             sx={{ cursor: "pointer", ml: 1 }}
             onClick={() => sortList()}
           />
         </Container>
-        {openAutocomplete && (
-          <MenuList sx={{ backgroundColor: "lightblue" }}>
-            {filterList.map((item, index) => {
-              return (
-                <MenuItem
-                  key={index}
-                  onClick={() => {
-                    setFilter(item.name)
-                    setOpenAutocomplete(false)
-                  }}
-                >
-                  {item.name}
-                </MenuItem>
-              )
-            })}
+        {/* {openAutocomplete && (
+        <MenuList sx={{ backgroundColor: "lightblue" }}>
+        {filterList.map((item, index) => {
+          return (
+            <MenuItem
+            key={index}
+            onClick={() => {
+              setFilter(item.name)
+              setOpenAutocomplete(false)
+            }}
+            >
+            {item.name}
+            </MenuItem>
+            )
+          })}
           </MenuList>
-        )}
+        )} */}
         {list.length > 0 ? (
           list.map((item, index) => {
             if (
@@ -104,6 +125,7 @@ export const SingleList = ({
                   index={index}
                   listNumber={listNumber}
                   list={list}
+                  state={state}
                 />
               )
             }
@@ -112,5 +134,23 @@ export const SingleList = ({
           <>This list has no items.</>
         )}
       </List>
-    )
-  }
+      <Container
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: "1rem",
+        }}
+      >
+        <TextField
+          variant="standard"
+          placeholder="New name"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+        ></TextField>
+        {newItem && <AddCircleIcon onClick={handleAddNewItem} sx={{cursor: 'pointer'}}/>}
+      </Container>
+    </Container>
+  )
+}

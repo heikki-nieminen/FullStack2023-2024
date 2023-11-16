@@ -1,10 +1,15 @@
-import { ListItem } from "@mui/material"
+import { Container, ListItem, Typography } from "@mui/material"
 import * as types from "./reducer/actions.jsx"
-import { useState } from "react"
 
-export const SingleItem = ({ item, index, listNumber, list, dispatch }) => {
-  const [dragging, setDragging] = useState(false)
 
+export const SingleItem = ({
+  item,
+  index,
+  listNumber,
+  list,
+  dispatch,
+  state,
+}) => {
   const handleDragStart = () => {
     const selectedItems = list.filter((item) => item.selected)
     dispatch({
@@ -15,12 +20,7 @@ export const SingleItem = ({ item, index, listNumber, list, dispatch }) => {
         draggedFrom: listNumber,
       },
     })
-    setDragging(true)
-  }
-
-  const handleDragEnd = () => {
-    setDragging(false)
-    dispatch({ type: types.CLEAR_DRAGGED_ITEM })
+    dispatch({ type: types.START_DRAGGING })
   }
 
   const selectHandler = () => {
@@ -38,28 +38,29 @@ export const SingleItem = ({ item, index, listNumber, list, dispatch }) => {
   return (
     <ListItem
       draggable={true}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragStart={(e) => {
+        handleDragStart()
+      }}
+      onClick={(e) => {
+        e.preventDefault()
+        selectHandler()
+      }}
       sx={[
         {
           "&:hover": {
             border: "1px",
             color: "gray",
-            backgroundColor: "lightblue",
+            backgroundColor: item.selected ? "green" : "lightblue",
           },
-          cursor: dragging ? "grabbing" : "grab",
-          width: 1,
+          cursor: state.dragging ? "grabbing !important" : "grab",
+          p: 0,
         },
         item.selected && {
           backgroundColor: "green",
         },
       ]}
-      onClick={(e) => {
-        e.preventDefault()
-        selectHandler()
-      }}
     >
-      {item.name}
+      <Typography sx={{mt:"0.2rem"}}>{item.name}</Typography>
     </ListItem>
   )
 }
