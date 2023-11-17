@@ -6,6 +6,7 @@ import {
   TextField,
   MenuList,
   MenuItem,
+  ListItem,
 } from "@mui/material"
 import * as types from "./reducer/actions.jsx"
 import { useState } from "react"
@@ -55,6 +56,12 @@ export const SingleList = ({
         setFilterList(autoCompleteList)
         setOpenAutocomplete(true)
       }
+    }
+  }
+
+  const onKeyDownHandler = (e) => {
+    if (e.key === "Enter") {
+      handleAddNewItem()
     }
   }
 
@@ -139,17 +146,26 @@ export const SingleList = ({
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "left",
           mb: "1rem",
+          p: 0,
+          g: 0
         }}
       >
         <TextField
           variant="standard"
           placeholder="New name"
           value={newItem}
+          sx={{m: 0, p: 0, g: 0}}
           onChange={(e) => setNewItem(e.target.value)}
+          onKeyDown={onKeyDownHandler}
         ></TextField>
-        {newItem && <AddCircleIcon onClick={handleAddNewItem} sx={{cursor: 'pointer'}}/>}
+        {newItem && (
+          <AddCircleIcon
+            onClick={handleAddNewItem}
+            sx={{ cursor: "pointer" }}
+          />
+        )}
       </Container>
     </Container>
   )

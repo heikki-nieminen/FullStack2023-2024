@@ -15,7 +15,6 @@ const App = () => {
 
   // useEffect hook for pulling initial data from localStorage
   useEffect(() => {
-    console.log("useEffect")
     const storedData = JSON.parse(localStorage.getItem("listData"))
     if (storedData) {
       dispatch({
@@ -45,21 +44,24 @@ const App = () => {
   const buttonHandler = (direction) => {
     if (direction === "lefttoright") {
       dispatch({ type: types.MOVE_ITEMS, payload: { sourceList: 1 } })
-    } 
-    else if (direction === "delete"){
-      dispatch({type: types.DELETE_ITEMS, payload: { sourceList: 0}})
-    }
-    else {
+    } else if (direction === "delete") {
+      dispatch({
+        type: types.DELETE_ITEMS,
+        payload: { sourceList: state.selectedFrom },
+      })
+    } else {
       dispatch({ type: types.MOVE_ITEMS, payload: { sourceList: 2 } })
     }
   }
   const handleDrop = (listNumber, deleteItems) => {
     if (!deleteItems && listNumber != state.draggedItems.draggedFrom) {
       dispatch({ type: types.MOVE_ITEMS })
+    } else if (deleteItems) {
+      dispatch({
+        type: types.DELETE_ITEMS,
+        payload: { sourceList: state.selectedFrom },
+      })
     }
-/*     else if (deleteItems){
-      dispatch({type: types.DELETE_ITEMS, payload: {sourceList: listNumber} })
-    } */
     dispatch({ type: types.STOP_DRAGGING })
     dispatch({ type: types.CLEAR_DRAGGED_ITEM })
   }
@@ -85,30 +87,66 @@ const App = () => {
             }}
           >
             <ArrowLeftIcon
-              sx={{ fontSize: "6rem", cursor: "pointer" }}
+              sx={[
+                {
+                  fontSize: "6rem",
+                  cursor: "pointer",
+                },
+                state.selectedFrom === 2
+                  ? {
+                      color: "lime",
+                    }
+                  : {
+                      color: "gray",
+                      opacity: "0.5",
+                      cursor: "not-allowed",
+                    },
+              ]}
               onClick={() => {
-                buttonHandler()
+                if (state.selectedFrom === 2) {
+                  buttonHandler()
+                }
               }}
             />
             <ArrowRightIcon
-              sx={{ fontSize: "6rem", cursor: "pointer" }}
+              sx={[
+                {
+                  fontSize: "6rem",
+                  cursor: "pointer",
+                },
+                state.selectedFrom === 1
+                  ? {
+                      color: "lime",
+                    }
+                  : {
+                      color: "gray",
+                      opacity: "0.5",
+                      cursor: "not-allowed",
+                    },
+              ]}
               onClick={() => {
-                buttonHandler("lefttoright")
+                if (state.selectedFrom === 1) {
+                  buttonHandler("lefttoright")
+                }
               }}
             />
             <DeleteIcon
-            sx={{ fontSize: "6rem", cursor: "pointer" }}
-            onClick={() => {
-              buttonHandler("delete")
-            }}
-           /*  onDragOver={(e)=>{
-              e.preventDefault()
-            }}
-            onDrop={(e)=> {
-              console.log("???")
-              e.preventDefault()
-              handleDrop(state.draggedItems.draggedFrom, true)
-            }} */
+              sx={{
+                fontSize: "6rem",
+                cursor: state.selectedFrom ? "pointer" : "not-allowed",
+              }}
+              onClick={() => {
+                if (state.selectedFrom !== null) {
+                  buttonHandler("delete")
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault()
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                handleDrop(state.draggedItems.draggedFrom, true)
+              }}
             />
           </Container>
 

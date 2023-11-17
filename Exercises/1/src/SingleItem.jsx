@@ -34,7 +34,6 @@ export const SingleItem = ({
     })
   }
 
-  console.log()
   return (
     <ListItem
       draggable={true}

@@ -1,7 +1,6 @@
 import * as types from "./actions.jsx"
 
 export const reducer = (state, action) => {
-
   let deepCopy = JSON.parse(JSON.stringify(state))
   console.log("ACTION TYPE: ", action.type)
 
@@ -9,10 +8,27 @@ export const reducer = (state, action) => {
     case types.SET_DRAGGED_ITEM: {
       if (action.payload.draggedFrom === 1) {
         deepCopy.lists.listOne[action.payload.index].selected = true
+        const updatedListTwo = deepCopy.lists.listTwo.map((item) => {
+          return { ...item, selected: false }
+        })
+        return {
+          ...deepCopy,
+          lists: { ...deepCopy.lists, listTwo: updatedListTwo },
+          draggedItems: action.payload,
+          selectedFrom: 1
+        }
       } else {
         deepCopy.lists.listTwo[action.payload.index].selected = true
+        const updatedListOne = deepCopy.lists.listOne.map((item) => {
+          return { ...item, selected: false }
+        })
+        return {
+          ...deepCopy,
+          lists: { ...deepCopy.lists, listOne: updatedListOne },
+          draggedItems: action.payload,
+          selectedFrom: 2
+        }
       }
-      return { ...deepCopy, draggedItems: action.payload }
     }
 
     case types.CLEAR_DRAGGED_ITEM: {
@@ -26,11 +42,34 @@ export const reducer = (state, action) => {
       if (action.payload.listNumber === 1) {
         deepCopy.lists.listOne[action.payload.index].selected =
           action.payload.selected
-        return deepCopy
+        const updatedListTwo = deepCopy.lists.listTwo.map((item) => {
+          return { ...item, selected: false }
+        })
+        const listOneHasSelected = deepCopy.lists.listOne.some(
+          (item) => item.selected
+        )
+        return {
+          ...deepCopy,
+          selectedFrom: listOneHasSelected ? 1 : null,
+          lists: { ...deepCopy.lists, listTwo: updatedListTwo },
+        }
       } else {
         deepCopy.lists.listTwo[action.payload.index].selected =
           action.payload.selected
-        return deepCopy
+
+        const updatedListOne = deepCopy.lists.listOne.map((item) => {
+          return { ...item, selected: false }
+        })
+
+        const listTwoHasSelected = deepCopy.lists.listTwo.some(
+          (item) => item.selected
+        )
+
+        return {
+          ...deepCopy,
+          selectedFrom: listTwoHasSelected ? 2 : 0,
+          lists: { ...deepCopy.lists, listOne: updatedListOne },
+        }
       }
     }
 
@@ -88,40 +127,40 @@ export const reducer = (state, action) => {
 
       return {
         ...deepCopy,
+        selectedFrom: null,
         lists: { listOne: updatedListOne, listTwo: updatedListTwo },
       }
     }
-    case types.START_DRAGGING : {
-      console.log("Started dragging")
-      return {...deepCopy, dragging:true}
+    case types.START_DRAGGING: {
+      return { ...deepCopy, dragging: true }
     }
-    case types.STOP_DRAGGING : {
-      console.log("Stopped dragging")
-      return {...deepCopy, dragging:false}
+    case types.STOP_DRAGGING: {
+      return { ...deepCopy, dragging: false }
     }
-    case types.INITIALIZE_DATA : {
-      console.log("STATE:",state)
-      console.log("STORAGE:",action.payload.data)
+    case types.INITIALIZE_DATA: {
       return action.payload.data
     }
-    case types.ADD_ITEM : {
-      if(action.payload.listNumber === 1){
-        deepCopy.lists.listOne.push({...action.payload.item, selected: false})
-      }
-      else {
-        deepCopy.lists.listTwo.push({...action.payload.item, selected: false})
+    case types.ADD_ITEM: {
+      if (action.payload.listNumber === 1) {
+        deepCopy.lists.listOne.push({ ...action.payload.item, selected: false })
+      } else {
+        deepCopy.lists.listTwo.push({ ...action.payload.item, selected: false })
       }
       return deepCopy
     }
-    
-    case types.DELETE_ITEMS : {
-      if(action.payload.sourceList === 0){
-        const updatedListOne = deepCopy.lists.listOne.filter((item)=>!item.selected)
-        const updatedListTwo = deepCopy.lists.listTwo.filter((item)=>!item.selected)
-        return {...deepCopy, lists: {listOne: updatedListOne, listTwo: updatedListTwo}}
-      }
-      if(deepCopy.draggedItems.draggedFrom === 1){
 
+    case types.DELETE_ITEMS: {
+      const updatedListOne = deepCopy.lists.listOne.filter(
+        (item) => !item.selected
+      )
+      const updatedListTwo = deepCopy.lists.listTwo.filter(
+        (item) => !item.selected
+      )
+
+      return {
+        ...deepCopy,
+        selectedFrom: null,
+        lists: { listOne: updatedListOne, listTwo: updatedListTwo },
       }
     }
 
@@ -152,6 +191,7 @@ export const initialState = {
   },
   draggedItems: { items: [], index: null, draggedFrom: null },
   dragging: false,
+  selectedFrom: null,
 }
 
 // Vanhat
