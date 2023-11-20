@@ -50,6 +50,7 @@ const App = () => {
         payload: { sourceList: state.selectedFrom },
       })
     } else {
+      console.log("Right to left")
       dispatch({ type: types.MOVE_ITEMS, payload: { sourceList: 2 } })
     }
   }
@@ -89,7 +90,7 @@ const App = () => {
             <ArrowLeftIcon
               sx={[
                 {
-                  fontSize: "6rem",
+                  fontSize: "8rem",
                   cursor: "pointer",
                 },
                 state.selectedFrom === 2
@@ -111,7 +112,7 @@ const App = () => {
             <ArrowRightIcon
               sx={[
                 {
-                  fontSize: "6rem",
+                  fontSize: "8rem",
                   cursor: "pointer",
                 },
                 state.selectedFrom === 1
@@ -132,8 +133,10 @@ const App = () => {
             />
             <DeleteIcon
               sx={{
-                fontSize: "6rem",
+                fontSize: "5rem",
                 cursor: state.selectedFrom ? "pointer" : "not-allowed",
+                color: state.selectedFrom ? "black" : "gray",
+                opacity: state.selectedFrom ? 1 : 0.5
               }}
               onClick={() => {
                 if (state.selectedFrom !== null) {

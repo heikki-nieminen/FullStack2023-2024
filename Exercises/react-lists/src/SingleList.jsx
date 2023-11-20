@@ -66,11 +66,13 @@ export const SingleList = ({
   }
 
   const handleAddNewItem = () => {
-    dispatch({
-      type: types.ADD_ITEM,
-      payload: { item: { name: newItem }, listNumber: listNumber },
-    })
-    setNewItem("")
+    if(newItem.length > 0){
+      dispatch({
+        type: types.ADD_ITEM,
+        payload: { item: { name: newItem }, listNumber: listNumber },
+      })
+      setNewItem("")
+    }
   }
   return (
     <Container>
@@ -101,7 +103,7 @@ export const SingleList = ({
             onClick={() => sortList()}
           />
         </Container>
-        {/* {openAutocomplete && (
+         {openAutocomplete && (
         <MenuList sx={{ backgroundColor: "lightblue" }}>
         {filterList.map((item, index) => {
           return (
@@ -117,7 +119,7 @@ export const SingleList = ({
             )
           })}
           </MenuList>
-        )} */}
+        )} 
         {list.length > 0 ? (
           list.map((item, index) => {
             if (
@@ -128,7 +130,7 @@ export const SingleList = ({
                 <SingleItem
                   item={item}
                   dispatch={dispatch}
-                  key={`${listNumber}-${index}`}
+                  key={`${listNumber}-${index}-${item.name}`}
                   index={index}
                   listNumber={listNumber}
                   list={list}
@@ -155,6 +157,7 @@ export const SingleList = ({
         <TextField
           variant="standard"
           placeholder="New name"
+          name="new-name"
           value={newItem}
           sx={{m: 0, p: 0, g: 0}}
           onChange={(e) => setNewItem(e.target.value)}

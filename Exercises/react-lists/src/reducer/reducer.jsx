@@ -1,7 +1,8 @@
 import * as types from "./actions.jsx"
 
 export const reducer = (state, action) => {
-  let deepCopy = JSON.parse(JSON.stringify(state))
+  //let deepCopy = JSON.parse(JSON.stringify(state))
+  let deepCopy = structuredClone(state)
   console.log("ACTION TYPE: ", action.type)
 
   switch (action.type) {
@@ -15,9 +16,9 @@ export const reducer = (state, action) => {
           ...deepCopy,
           lists: { ...deepCopy.lists, listTwo: updatedListTwo },
           draggedItems: action.payload,
-          selectedFrom: 1
+          selectedFrom: 1,
         }
-      } else {
+      } else if (action.payload.draggedFrom === 2) {
         deepCopy.lists.listTwo[action.payload.index].selected = true
         const updatedListOne = deepCopy.lists.listOne.map((item) => {
           return { ...item, selected: false }
@@ -26,8 +27,10 @@ export const reducer = (state, action) => {
           ...deepCopy,
           lists: { ...deepCopy.lists, listOne: updatedListOne },
           draggedItems: action.payload,
-          selectedFrom: 2
+          selectedFrom: 2,
         }
+      } else {
+        return deepCopy
       }
     }
 
@@ -53,7 +56,7 @@ export const reducer = (state, action) => {
           selectedFrom: listOneHasSelected ? 1 : null,
           lists: { ...deepCopy.lists, listTwo: updatedListTwo },
         }
-      } else {
+      } else if (action.payload.listNumber === 2) {
         deepCopy.lists.listTwo[action.payload.index].selected =
           action.payload.selected
 
@@ -70,6 +73,8 @@ export const reducer = (state, action) => {
           selectedFrom: listTwoHasSelected ? 2 : 0,
           lists: { ...deepCopy.lists, listOne: updatedListOne },
         }
+      } else {
+        return deepCopy
       }
     }
 
@@ -77,8 +82,10 @@ export const reducer = (state, action) => {
       let listCopy
       if (action.payload.listNumber === 1) {
         listCopy = deepCopy.lists.listOne
-      } else {
+      } else if (action.payload.listNumber === 2) {
         listCopy = deepCopy.lists.listTwo
+      } else {
+        return deepCopy
       }
       let sorted
 
@@ -97,8 +104,10 @@ export const reducer = (state, action) => {
 
       if (action.payload.listNumber === 1) {
         return { ...deepCopy, lists: { ...deepCopy.lists, listOne: sorted } }
-      } else {
+      } else if (action.payload.listNumber === 2) {
         return { ...deepCopy, lists: { ...deepCopy.lists, listTwo: sorted } }
+      } else {
+        return deepCopy
       }
     }
 
@@ -106,15 +115,20 @@ export const reducer = (state, action) => {
       let updatedListOne, updatedListTwo
       const sourceList =
         action.payload?.sourceList | deepCopy.draggedItems.draggedFrom
+
+        console.log("Source:",sourceList)
       if (sourceList === 1) {
         let selected = deepCopy.lists.listOne.filter((item) => item.selected)
         updatedListTwo = [...deepCopy.lists.listTwo, ...selected]
+        console.log("updatedList:",updatedListTwo)
         updatedListOne = deepCopy.lists.listOne.filter((item) => !item.selected)
-      } else {
+      } else if (sourceList === 2) {
         let selected = deepCopy.lists.listTwo.filter((item) => item.selected)
         updatedListOne = [...deepCopy.lists.listOne, ...selected]
 
         updatedListTwo = deepCopy.lists.listTwo.filter((item) => !item.selected)
+      } else {
+        return deepCopy
       }
       updatedListOne = updatedListOne.map((item) => ({
         ...item,
@@ -143,7 +157,7 @@ export const reducer = (state, action) => {
     case types.ADD_ITEM: {
       if (action.payload.listNumber === 1) {
         deepCopy.lists.listOne.push({ ...action.payload.item, selected: false })
-      } else {
+      } else if (action.payload.listNumber === 2) {
         deepCopy.lists.listTwo.push({ ...action.payload.item, selected: false })
       }
       return deepCopy
@@ -182,11 +196,11 @@ export const initialState = {
       { name: "Hanna", selected: false },
       { name: "Matias", selected: false },
       { name: "Emma", selected: false },
-      { name: "Janne", selected: false },
+      { name: "Ville", selected: false },
     ],
     listTwo: [
       { name: "Janne", selected: false },
-      { name: "Janne", selected: false },
+      { name: "Seppo", selected: false },
     ],
   },
   draggedItems: { items: [], index: null, draggedFrom: null },

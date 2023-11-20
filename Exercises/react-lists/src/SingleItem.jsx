@@ -23,6 +23,10 @@ export const SingleItem = ({
     dispatch({ type: types.START_DRAGGING })
   }
 
+  const handleDragEnd = () => {
+    dispatch({type: types.STOP_DRAGGING})
+  }
+
   const selectHandler = () => {
     dispatch({
       type: types.SELECT_ITEM,
@@ -40,6 +44,7 @@ export const SingleItem = ({
       onDragStart={(e) => {
         handleDragStart()
       }}
+      onDragEnd={handleDragEnd}
       onClick={(e) => {
         e.preventDefault()
         selectHandler()
