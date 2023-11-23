@@ -1,0 +1,37 @@
+<html>
+  <head></head>
+  <body>
+    <p id="help">Tässä näkyy aputeksti</p>
+    <p>
+      E-mail:
+      <input type="text" id="email" name="email" />
+    </p>
+    <p>
+      E-mail:
+      <input type="text" id="name" name="name" />
+    </p>
+    <p>
+      E-mail:
+      <input type="text" id="age" name="age" />
+    </p>
+
+    <script>
+      const näytäHelp = (help) => {
+        document.getElementById('help').innerHTML = help
+      }
+      const alustaHelp = () => {
+        let helpTeksti = [
+          { id: 'email', help: 'Your e-mail address' },
+          { id: 'name', help: 'Your full name' },
+          { id: 'age', help: 'Your age (you must be over 16)' },
+        ]
+        for (let item of helpTeksti) {
+          document.getElementById(item.id).onfocus = function () {
+            näytäHelp(item.help)
+          }
+        }
+      }
+      alustaHelp()
+    </script>
+  </body>
+</html>

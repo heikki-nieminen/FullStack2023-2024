@@ -1,18 +1,23 @@
-import { useAppDispatch } from '../../app/hooks'
-import { Container, List, TextField, MenuList, MenuItem } from '@mui/material'
-import { useState, FC } from 'react'
-import SortByAlphaRoundedIcon from '@mui/icons-material/SortByAlphaRounded'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import { sortList, ListItemProp, addItem } from './listSlice'
-import { SingleListItem } from '../ListItem/ListItem'
+import SortByAlphaRoundedIcon from '@mui/icons-material/SortByAlphaRounded'
+import { Container, List, MenuItem, MenuList, TextField } from '@mui/material'
+import { FC, useState, useEffect } from 'react'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import {
+  ListItemProp,
+  addItem,
+  deleteList,
+  sortList,
+} from '../reducers/List/listSlice'
+import { selectSingleList } from '../reducers/List/selectors'
+import { SingleListItem } from './ListItem'
 
 interface ListProps {
   listIndex: number
-  list: ListItemProp[]
   handleDrop: (listNumber: number, deleteItems: boolean) => void
 }
 
-export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
+export const SingleList: FC<ListProps> = ({ listIndex, handleDrop }) => {
   const [sortDirectionAsc, setSortDirectionAsc] = useState(true)
   const [filter, setFilter] = useState('')
   const [filterList, setFilterList] = useState<ListItemProp[] | null>(null)
@@ -21,6 +26,15 @@ export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
 
   //const state = useAppSelector(selectState)
   const dispatch = useAppDispatch()
+  const list = useAppSelector((state) => selectSingleList(state, listIndex))
+
+  useEffect(() => {
+    console.log('List length:', list.length)
+    if (list.length === 0) {
+      console.log('Dispatching deleteList')
+      dispatch(deleteList({ listIndex }))
+    }
+  }, [list, dispatch, listIndex])
 
   const sortListHandler = () => {
     dispatch(
@@ -74,6 +88,7 @@ export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
           height: '20rem',
           maxHeight: '20rem',
           overflowY: 'scroll',
+          margin: '0.5rem',
           '&::-webkit-scrollbar': {
             display: 'none',
           },
@@ -86,7 +101,7 @@ export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
             variant='standard'
             placeholder='Search'
             value={filter}
-            sx={{ width: '5rem', m: 0, g: 0 }}
+            sx={{ width: '4rem', m: 0, g: 0 }}
             onChange={handleFilterChange}
           />
 
@@ -117,22 +132,16 @@ export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
           </MenuList>
         )}
         {list.length > 0 ? (
-          list.map((item, index) => {
-            if (
-              !filter ||
-              item.name.toUpperCase().startsWith(filter.toUpperCase())
-            ) {
-              return (
-                <SingleListItem
-                  item={item}
-                  key={`${listIndex}-${index}-${item.name}`}
-                  index={index}
-                  listIndex={listIndex}
-                  list={list}
-                />
-              )
-            }
-          })
+          list.map((item, index) =>
+            !filter ||
+            item.name.toUpperCase().startsWith(filter.toUpperCase()) ? (
+              <SingleListItem
+                key={`${listIndex}-${index}-${item.name}`}
+                index={index}
+                listIndex={listIndex}
+              />
+            ) : null
+          )
         ) : (
           <>This list has no items.</>
         )}
@@ -167,61 +176,3 @@ export const SingleList: FC<ListProps> = ({ listIndex, list, handleDrop }) => {
     </Container>
   )
 }
-
-/* import styles from "./Counter.module.css"
-
-export function Counter() {
-  const count = useAppSelector(selectCount)
-  const dispatch = useAppDispatch()
-  const [incrementAmount, setIncrementAmount] = useState("2")
-
-  const incrementValue = Number(incrementAmount) || 0
-
-  return (
-    <div>
-      <div className={styles.row}>
-        <button
-          className={styles.button}
-          aria-label="Decrement value"
-          onClick={() => dispatch(decrement())}
-        >
-          -
-        </button>
-        <span className={styles.value}>{count}</span>
-        <button
-          className={styles.button}
-          aria-label="Increment value"
-          onClick={() => dispatch(increment())}
-        >
-          +
-        </button>
-      </div>
-      <div className={styles.row}>
-        <input
-          className={styles.textbox}
-          aria-label="Set increment amount"
-          value={incrementAmount}
-          onChange={(e) => setIncrementAmount(e.target.value)}
-        />
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementByAmount(incrementValue))}
-        >
-          Add Amount
-        </button>
-        <button
-          className={styles.asyncButton}
-          onClick={() => dispatch(incrementAsync(incrementValue))}
-        >
-          Add Async
-        </button>
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementIfOdd(incrementValue))}
-        >
-          Add If Odd
-        </button>
-      </div>
-    </div>
-  )
-} */
