@@ -2,6 +2,7 @@ import { Button, Modal, Typography, Box, OutlinedInput } from '@mui/material'
 import { FC, Dispatch, SetStateAction, useState } from 'react'
 import { useAppDispatch } from '../../state/hooks'
 import { addNewQuestion } from '../../state/reducers/questionSlice'
+import axios from 'axios'
 
 const style = {
   position: 'relative',
@@ -31,10 +32,20 @@ export const NewQuestion: FC<NewQuestionProps> = ({
 
   const dispatch = useAppDispatch()
 
-  const handleClose = () => setOpen(false)
-  const handleAddNewQuestion = () => {
+  const handleClose = () => {
+    setName('')
+    setOpen(false)
+  }
+  const handleAddNewQuestion = async () => {
     try {
-      dispatch(addNewQuestion({ name: name, quizId: quizId }))
+      const response = await axios({
+        method: 'POST',
+        url: 'http://localhost:3001/addQuestion',
+        data: { name: name, quizId: quizId },
+      })
+      dispatch(
+        addNewQuestion({ name: name, quizId: quizId, id: response.data.id })
+      )
     } catch (err) {
       console.log(err)
     }
@@ -44,7 +55,9 @@ export const NewQuestion: FC<NewQuestionProps> = ({
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
-        <Typography variant='h4'>New quiz</Typography>
+        <Typography variant='h4' color={'black'}>
+          New question
+        </Typography>
         <OutlinedInput
           id={'question-name'}
           name={'question-name'}

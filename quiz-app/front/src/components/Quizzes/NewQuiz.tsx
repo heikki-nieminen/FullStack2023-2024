@@ -38,7 +38,6 @@ export const NewQuiz: FC<NewQuizProps> = ({ open, setOpen }) => {
         url: 'http://localhost:3001/addQuiz',
         data: { name: name },
       })
-      console.log('Response:', response)
       dispatch(addNewQuiz({ name: name, id: response.data.id }))
     } catch (err) {
       console.log(err)
@@ -49,7 +48,9 @@ export const NewQuiz: FC<NewQuizProps> = ({ open, setOpen }) => {
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
-        <Typography variant='h4'>New quiz</Typography>
+        <Typography variant='h4' color={'black'}>
+          New quiz
+        </Typography>
         <OutlinedInput
           id={'quiz-name'}
           name={'quiz-name'}

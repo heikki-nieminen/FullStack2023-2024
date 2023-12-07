@@ -1,9 +1,10 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { fetchQuestions } from './utils'
 import { RootState } from '../store'
+import { deleteAnswersByQuestionId } from './answerSlice'
 
 export interface QuestionType {
-  id: number
+  id: number | string
   name: string
   quizId: number | string
 }
@@ -16,11 +17,7 @@ export interface QuestionState {
 }
 
 const initialState: QuestionState = {
-  questions: [
-    { id: 0, name: 'Testi kysymys', quizId: 0 },
-    { id: 1, name: 'Testi kysymys1', quizId: 1 },
-    { id: 2, name: 'Testi kysymys2', quizId: 1 },
-  ],
+  questions: [],
   selectedQuestion: null,
   status: null,
   error: undefined,
@@ -39,26 +36,32 @@ export const questionSlice = createSlice({
     addNewQuestion: (state, action) => {
       state.questions.push(action.payload)
     },
-    deleteQuestion: (
-      state,
-      action: PayloadAction<{ questionIndex: number }>
-    ) => {
+    deleteQuestion: (state, action) => {
+      deleteAnswersByQuestionId(action.payload)
       state.questions = state.questions.filter(
-        (question) => question.id !== action.payload.questionIndex
+        (question) => question.id !== action.payload
       )
     },
-    renameQuestion: (
-      state,
-      action: PayloadAction<{ questionIndex: number; name: string }>
-    ) => {
-      state.questions[action.payload.questionIndex].name = action.payload.name
+    editQuestion: (state, action) => {
+      state.questions = state.questions.map((question) =>
+        action.payload.id === question.id ? action.payload : question
+      )
+    },
+    deleteQuestionsByQuizId: (state, action) => {
+      const questionsToDelete = state.questions.filter(
+        (question: QuestionType) => question.quizId === action.payload
+      )
+      questionsToDelete.forEach((question: QuestionType) => {
+        deleteAnswersByQuestionId(question.id)
+      })
+      state.questions = state.questions.filter(
+        (question: QuestionType) => question.quizId !== action.payload
+      )
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchQuestions.fulfilled, (state, action) => {
-        console.log('Data fetched:', action.payload.data)
-        console.log('State:', state.status)
         state.status = 'succeeded'
         state.questions = action.payload.data
       })
@@ -74,9 +77,25 @@ export const questionSlice = createSlice({
 
 export default questionSlice.reducer
 
-export const selectQuestionsByQuizId =
+/* const getQuestions = (state: RootState) => (id: string) => {
+  return state.question.questions.filter((question) => question.quizId === id)
+} */
+
+/* export const selectQuestionsByQuizId =
   (id: number | string) => (state: RootState) => {
     return state.question.questions.filter((question) => question.quizId === id)
   }
+ */
+export const selectQuestionsByQuizId = (id: string | number) =>
+  createSelector(
+    (state: RootState) => state.question.questions,
+    (questions) =>
+      questions.filter((question: QuestionType) => question.quizId === id)
+  )
 
-export const { addNewQuestion } = questionSlice.actions
+export const {
+  addNewQuestion,
+  deleteQuestion,
+  editQuestion,
+  deleteQuestionsByQuizId,
+} = questionSlice.actions

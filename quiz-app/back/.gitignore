@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 quiz.json
+question.json
+answer.json
+user.json
+.env

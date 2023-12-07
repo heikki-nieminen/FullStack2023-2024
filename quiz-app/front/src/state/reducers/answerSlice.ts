@@ -1,11 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createSelector } from '@reduxjs/toolkit'
 import { fetchAnswers } from './utils'
 import { RootState } from '../store'
 
 export interface AnswerType {
-  id: number
+  id: number | string
   name: string
-  questionId: number
+  questionId: number | string
+  isCorrect: boolean
 }
 
 export interface AnswerState {
@@ -15,13 +16,7 @@ export interface AnswerState {
 }
 
 const initialState: AnswerState = {
-  answers: [
-    { id: 0, name: 'Testivastaus', questionId: 1 },
-    { id: 1, name: 'Testivastaus2', questionId: 1 },
-    { id: 2, name: 'Testivastaus3', questionId: 1 },
-    { id: 3, name: 'Testivastaus4', questionId: 1 },
-    { id: 4, name: 'Testivastaus5', questionId: 1 },
-  ],
+  answers: [],
   status: null,
   error: undefined,
 }
@@ -29,12 +24,31 @@ const initialState: AnswerState = {
 export const answerSlice = createSlice({
   name: 'answer',
   initialState,
-  reducers: {},
+  reducers: {
+    addNewAnswer: (state, action) => {
+      state.answers.push(action.payload)
+    },
+    deleteAnswer: (state, action) => {
+      console.log('Deleting answer:', action.payload)
+      state.answers = state.answers.filter(
+        (answer) => answer.id !== action.payload
+      )
+    },
+    editAnswer: (state, action) => {
+      console.log('Editing answer:', action.payload.id)
+      state.answers = state.answers.map((answer) =>
+        answer.id === action.payload.id ? action.payload : answer
+      )
+    },
+    deleteAnswersByQuestionId: (state, action) => {
+      state.answers = state.answers.filter(
+        (answer: AnswerType) => answer.questionId !== action.payload
+      )
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAnswers.fulfilled, (state, action) => {
-        console.log('Data fetched:', action.payload.data)
-        console.log('State:', state.status)
         state.status = 'succeeded'
         state.answers = action.payload.data
       })
@@ -50,6 +64,16 @@ export const answerSlice = createSlice({
 
 export default answerSlice.reducer
 
-export const selectAnswersByQuestionId = (id: number) => (state: RootState) => {
-  return state.answer.answers.filter((answer) => answer.questionId === id)
-}
+/* export const selectAnswersByQuestionId =
+  (id: number | string) => (state: RootState) => {
+    return state.answer.answers.filter((answer) => answer.questionId === id)
+  } */
+
+export const selectAnswersByQuestionId = (id: string | number) =>
+  createSelector(
+    (state: RootState) => state.answer.answers,
+    (answers) =>
+      answers.filter((answer: AnswerType) => answer.questionId === id)
+  )
+
+export const { addNewAnswer, deleteAnswer, editAnswer, deleteAnswersByQuestionId } = answerSlice.actions

@@ -38,3 +38,13 @@ export const fetchAnswers = createAsyncThunk(
     return { selectedAnswer: null, answers: [] }
   }
 )
+
+export const fetchQuizById = createAsyncThunk(
+  'quiz/getQuizById',
+  async (quizId) => {
+    const response = await fetch(`http://localhost:3001/getQuiz/${quizId}`)
+    console.log('Response:', response)
+    const data = await response.json()
+    return data
+  }
+)

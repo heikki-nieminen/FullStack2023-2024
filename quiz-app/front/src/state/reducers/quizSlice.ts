@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { fetchQuizzes } from './utils'
+import { fetchQuizzes, fetchQuizById } from './utils'
 import { RootState } from '../store'
+import { deleteQuestionsByQuizId } from './questionSlice'
 
 export interface QuizType {
   id: string | number
@@ -38,23 +39,21 @@ export const quizSlice = createSlice({
     ) => {
       state.quizzes.push({ id: action.payload.id, name: action.payload.name })
     },
-    deleteQuiz: (state, action: PayloadAction<{ quizId: number }>) => {
-      state.quizzes = state.quizzes.filter(
-        (quiz) => quiz.id !== action.payload.quizId
-      )
+    deleteQuiz: (state, action) => {
+      deleteQuestionsByQuizId(action.payload)
+      state.quizzes = state.quizzes.filter((quiz) => quiz.id !== action.payload)
     },
-    renameQuiz: (
-      state,
-      action: PayloadAction<{ quizIndex: number; name: string }>
-    ) => {
-      state.quizzes[action.payload.quizIndex].name = action.payload.name
+    editQuiz: (state, action) => {
+      state.quizzes = state.quizzes.map((quiz) =>
+        quiz.id === action.payload.id
+          ? { ...quiz, name: action.payload.name }
+          : quiz
+      )
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchQuizzes.fulfilled, (state, action) => {
-        console.log('Data fetched:', action.payload.data)
-        console.log('State:', state.status)
         state.status = 'succeeded'
         state.quizzes = action.payload.data
       })
@@ -65,21 +64,29 @@ export const quizSlice = createSlice({
         state.status = 'failed'
         state.error = action.error.message
       })
+      .addCase(fetchQuizById.pending, (state) => {
+        state.status = 'pending'
+      })
+      .addCase(fetchQuizById.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.quizzes = [...state.quizzes, ...action.payload.data]
+      })
+      .addCase(fetchQuizById.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message
+      })
   },
 })
 
 export default quizSlice.reducer
 
 export const selectQuizzes = (state: RootState) => state.quiz.quizzes
-export const selectQuizById = (id: string) => (state: RootState) =>
-  state.quiz.quizzes.filter((quiz) => quiz.id === id)[0]
+export const selectQuizById = (id: string) => (state: RootState) => {
+  const quiz = state.quiz.quizzes.filter((quiz) => quiz.id === id)[0]
+  if (quiz) return quiz
+}
 
 export const selectStatus = (state: RootState) => state.quiz.status
 
-export const {
-  initializeData,
-  selectQuiz,
-  addNewQuiz,
-  deleteQuiz,
-  renameQuiz,
-} = quizSlice.actions
+export const { initializeData, selectQuiz, addNewQuiz, deleteQuiz, editQuiz } =
+  quizSlice.actions
