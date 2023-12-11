@@ -10,7 +10,7 @@ import { selectQuestionsByQuizId } from '../../state/reducers/questionSlice'
 import { Typography, Container, Box, OutlinedInput } from '@mui/material'
 import { Question } from '../Question/Question'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, SyntheticEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { NewQuestion } from './NewQuestion'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -40,6 +40,7 @@ export const Quiz = () => {
   console.log('quizName:', quiz?.name)
   const questions = useAppSelector(selectQuestionsByQuizId(id))
   const navigate = useNavigate()
+  const [expanded, setExpanded] = useState<string | false>(false)
   //const questions = useAppSelector(selectQuestionsByQuizId(id))
   useEffect(() => {
     if (quiz) {
@@ -74,6 +75,11 @@ export const Quiz = () => {
     }
     setEditQuizName(false)
   }
+
+  const handleAccordionChange =
+    (panel: string) => (e: SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false)
+    }
 
   if (quiz === undefined) {
     return <NotFound />
@@ -122,8 +128,14 @@ export const Quiz = () => {
           </>
         )}
       </Box>
-      {questions.map((question) => (
-        <Question question={question} key={question.id} />
+      {questions.map((question, index) => (
+        <Question
+          question={question}
+          key={question.id}
+          index={index}
+          handleAccordionChange={handleAccordionChange}
+          expanded={expanded}
+        />
       ))}
       <AddCircleIcon
         sx={{ fontSize: '5rem', cursor: 'pointer' }}

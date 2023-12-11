@@ -11,7 +11,7 @@ import {
   Box,
   TextField,
 } from '@mui/material'
-import { FC, useState } from 'react'
+import { FC, useState, SyntheticEvent } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useAppSelector } from '../../state/hooks'
 import {
@@ -27,12 +27,22 @@ import { useAppDispatch } from '../../state/store'
 
 interface QuestionProps {
   question: QuestionType
+  index: number
+  expanded: string | false
+  handleAccordionChange: (
+    panel: string
+  ) => (e: SyntheticEvent, isExpanded: boolean) => void
 }
 
-export const Question: FC<QuestionProps> = ({ question }) => {
+export const Question: FC<QuestionProps> = ({
+  question,
+  index,
+  expanded,
+  handleAccordionChange,
+}) => {
   const answers = useAppSelector(selectAnswersByQuestionId(question.id))
   const [open, setOpen] = useState(false)
-  const [accordionOpen, setAccordionOpen] = useState(false)
+  //const [accordionOpen, setAccordionOpen] = useState(false)
   const [questionName, setQuestionName] = useState(question.name)
   const dispatch = useAppDispatch()
 
@@ -72,14 +82,17 @@ export const Question: FC<QuestionProps> = ({ question }) => {
 
   return (
     <>
-      <Accordion>
+      <Accordion
+        expanded={expanded === `panel${index}`}
+        onChange={handleAccordionChange(`panel${index}`)}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls='panel1a-content'
-          id='panel1a-header'
-          onClick={() => setAccordionOpen(!accordionOpen)}
+          aria-controls={`panel${index}bh-content`}
+          id={`panel${index}bh-header`}
+          //onClick={() => handleAccordionChange(`panel${index}`)}
         >
-          {accordionOpen ? (
+          {expanded === `panel${index}` ? (
             <TextField
               value={questionName}
               variant='standard'
