@@ -1,9 +1,17 @@
-import { loginUser, registerUser } from '../queries/userQueries'
+import { NextFunction, Response } from 'express'
+import {
+  addQuiz,
+  getAllQuizzes,
+  getQuiz,
+  loginUser,
+  registerUser,
+} from '../queries/userQueries'
 import { RouteHandler } from '../types'
 import { RequestWithUser, hashPassword } from '../utils/authentication'
+import { SALT_ROUNDS } from '../config'
 
 // Login handler
-export const loginHandler: RouteHandler = async (req, res, next) => {
+/* export const loginHandler: RouteHandler = async (req, res, next) => {
   try {
     const userData = req.body
     const loginUserResult = await loginUser(userData)
@@ -15,10 +23,20 @@ export const loginHandler: RouteHandler = async (req, res, next) => {
     console.error('Login error:', error)
     next(error)
   }
+} */
+
+export const loginHandler: RouteHandler = async (req, res, next) => {
+  try {
+    const loginUserResult = await loginUser(req.body)
+    if (loginUserResult.error) return next(loginUserResult)
+    res.status(200).json({ token: loginUserResult.data?.token })
+  } catch (err) {
+    return next({ message: err })
+  }
 }
 
 // Register handler
-export const registerHandler: RouteHandler = async (req, res, next) => {
+/* export const registerHandler: RouteHandler = async (req, res, next) => {
   try {
     const userData = req.body
     console.log('Userdata:', userData)
@@ -36,6 +54,28 @@ export const registerHandler: RouteHandler = async (req, res, next) => {
     console.error('Register error:', error)
     next(error)
   }
+} */
+export const registerHandler: RouteHandler = async (req, res, next) => {
+  try {
+    const hashedPassword = await hashPassword(req.body.password)
+    const registerUserResult = await registerUser({
+      username: req.body.username,
+      password: hashedPassword,
+    })
+    if (registerUserResult.error) {
+      console.log('???')
+      return next(registerUserResult)
+    }
+    const loginUserResult = await loginUser(req.body)
+    if (loginUserResult.error) {
+      console.log('Täsä:', loginUserResult)
+      return next(loginUserResult)
+    }
+    res.status(200).json({ token: loginUserResult.data?.token })
+  } catch (err) {
+    console.log('Error:', err)
+    return next({ message: err })
+  }
 }
 
 // Check token
@@ -49,5 +89,79 @@ export const verifyTokenHandler: RouteHandler = async (
   } catch (error) {
     console.error('Token validation error:', error)
     next(error)
+  }
+}
+
+// Prisma addQuiz
+
+export const addQuizHandler = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    const addQuizResult = await addQuiz({
+      name: req.body.name,
+      creator_id: req.user.id,
+    })
+    if (addQuizResult.error) {
+      console.log('ERROR:', addQuizResult)
+      return next(addQuizResult)
+    }
+    res
+      .status(201)
+      .json({ message: 'Quiz added succesfully', id: addQuizResult.data })
+  } catch (err) {
+    console.error('Error adding quiz:', err)
+    next(err)
+  }
+}
+
+export const getAllQuizzesHandler: RouteHandler = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log('Getting all quizzes')
+  try {
+    const userId = req.user?.id
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+    } else {
+      const getAllQuizzesResult = await getAllQuizzes(userId)
+
+      if (getAllQuizzesResult.error) {
+        next(getAllQuizzesResult)
+      } else {
+        console.log('Got quizzes:', getAllQuizzesResult)
+        res
+          .status(200)
+          .json({
+            message: getAllQuizzesResult.message,
+            data: getAllQuizzesResult.data,
+          })
+      }
+    }
+  } catch (err) {
+    console.error('Error getting quizzes:', err)
+    next(err)
+  }
+}
+
+export const getQuizHandler: RouteHandler = async (req, res, next) => {
+  const quizId = parseInt(req.params.id)
+  try {
+    const getQuizResult = await getQuiz(quizId)
+    if (getQuizResult.error) return next(getQuizResult)
+    res
+      .status(200)
+      .json({ data: getQuizResult.data })
+  } catch (err) {
+    console.error('Error getting quiz:', err)
+    next(err)
   }
 }

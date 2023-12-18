@@ -15,9 +15,9 @@ const port = PORT
 
 app.use(bodyParser.json())
 app.use(cors())
-app.use(errorHandler)
 app.use('/', userRouter)
 app.use('/admin/', adminRouter)
+app.use(errorHandler)
 
 app.get('/getQuizzes', async (_, res: Response) => {
   try {
@@ -47,7 +47,6 @@ app.get('/getAnswers', async (_, res: Response) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
-
 app.post('/addQuiz', auth.userAuth, async (req: Request, res: Response) => {
   try {
     const newQuiz = req.body
@@ -93,7 +92,6 @@ app.delete(
     }
   }
 )
-
 app.get('/getQuiz/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id
@@ -105,7 +103,6 @@ app.get('/getQuiz/:id', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
-
 app.post('/addQuestion', async (req: Request, res: Response) => {
   try {
     const newQuestion = req.body
@@ -159,7 +156,6 @@ app.delete('/deleteQuestion/:id', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
-
 app.post('/addAnswer', async (req: Request, res: Response) => {
   try {
     const newAnswer = req.body
@@ -190,7 +186,6 @@ app.put('/editAnswer/:id', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
-
 app.delete('/deleteAnswer/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id

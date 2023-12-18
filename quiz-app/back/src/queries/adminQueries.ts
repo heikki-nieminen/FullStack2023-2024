@@ -1,67 +1,16 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { SECRET } from '../config'
+import { ADMIN_SECRET } from '../config'
 import { prisma } from './prisma'
 
-/* export const registerUser = async (userData: {
-  username: string
-  password: string
-}) => {
-  try {
-    const id = uuidv4()
-    const existingUsers = await readDataFromFile('json/user.json')
-    const doesUserExist = existingUsers.some(
-      (user: User) => user.username === userData.username
-    )
-    if (doesUserExist) return { error: true, type: 'user_already_exists' }
-    const updatedUsers = [...existingUsers, { ...userData, id: id }]
-    await saveDataToFile('json/user.json', updatedUsers)
-  } catch (err) {
-    console.log('Tässä:', err)
-    return { error: true, message: err }
-  }
-}
-
-export const loginUser = async (userData: {
-  username: string
-  password: string
-}) => {
-  try {
-    const users = await readDataFromFile('json/user.json')
-    const doesUserExist = users.some(
-      (user: User) => user.username === userData.username
-    )
-    if (doesUserExist) {
-      const user = users.filter(
-        (user: User) => user.username === userData.username
-      )[0]
-      const compare = await bcrypt.compare(userData.password, user.password)
-      console.log('2')
-      if (compare) {
-        const token = jwt.sign({ username: userData.username }, SECRET, {
-          algorithm: 'HS256',
-          expiresIn: '30d',
-        })
-        return { error: false, data: { token: token } }
-      }
-    }
-    return { error: true, type: 'wrong_username_or_password' }
-  } catch (err) {
-    console.log('Error:', err)
-    return { error: true, message: err }
-  }
-} */
-
-// Prisma queries
-
-// User related
-export const registerUser = async (data: {
+// Authentication
+export const registerAdmin = async (data: {
   username: string
   password: string
 }) => {
   try {
     const response = await prisma.user.create({
-      data: data,
+      data: { ...data, is_admin: true },
     })
     console.log('Account created')
     return { error: false, message: 'ok', data: response }
@@ -71,7 +20,7 @@ export const registerUser = async (data: {
   }
 }
 
-export const loginUser = async (data: {
+export const loginAdmin = async (data: {
   username: string
   password: string
 }) => {
@@ -79,6 +28,7 @@ export const loginUser = async (data: {
     const response = await prisma.user.findUnique({
       where: {
         username: data.username,
+        is_admin: true,
       },
     })
     if (response) {
@@ -87,7 +37,7 @@ export const loginUser = async (data: {
       if (compare) {
         const token = jwt.sign(
           { id: response.id, username: data.username },
-          SECRET,
+          ADMIN_SECRET,
           {
             algorithm: 'HS256',
             expiresIn: '30d',
@@ -108,125 +58,32 @@ export const loginUser = async (data: {
       type: 'wrong_user_or_pass',
     }
   } catch (err) {
+    console.log('Tässä:', err)
     return { error: true, message: err }
   }
 }
 
 // Quiz related
-export const getAllQuizzes = async (userId: number) => {
+// Get quizzes with creator id
+export const getAllQuizzes = async (id: number) => {
   console.log('Getting quizzes')
   try {
-    const quizzes = await prisma.quizUser.findMany({
+    const quizzes = await prisma.quiz.findMany({
       where: {
-        user_id: userId,
-      },
-      include: {
-        quiz: true,
+        creator_id: id,
       },
     })
-    return { error: false, data: quizzes }
+    console.log('Quizzes:', quizzes)
+    return { error: false, message: 'ok', data: quizzes }
   } catch (err) {
     return { error: true, message: err }
   }
 }
 
-export const getQuiz = async (quizId: number) => {
-  try {
-    const quiz = await prisma.quiz.findUnique({
-      where: {
-        id: quizId,
-      },
-      select: {
-        id: true,
-        name: true,
-        question: {
-          select: {
-            id: true,
-            name: true,
-            answer: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    })
-    return { error: false, data: quiz }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
+// Add quiz
 export const addQuiz = async (data: { name: string; creator_id: number }) => {
   try {
     const response = await prisma.quiz.create({
-      data: data,
-    })
-    return { error: false, data: response.id }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
-export const updateQuiz = async (data: {
-  id: number
-  name: string
-  creator_id: number
-}) => {
-  try {
-    await prisma.quiz.update({
-      where: {
-        id: data.id,
-      },
-      data: data,
-    })
-    return { error: false, message: 'ok' }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
-export const deleteQuiz = async (id: number) => {
-  try {
-    await prisma.quiz.delete({
-      where: {
-        id: id,
-      },
-    })
-    return { error: false, message: 'ok' }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
-// Question related
-export const getAllQuestions = async () => {
-  try {
-    const questions = await prisma.question.findMany()
-    return { error: false, message: 'ok', data: questions }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
-export const getQuestionsByQuizId = async (id: number) => {
-  try {
-    const questions = await prisma.question.findMany({
-      where: {
-        quiz_id: id,
-      },
-    })
-    return { error: false, message: 'ok', data: questions }
-  } catch (err) {
-    return { error: true, message: err }
-  }
-}
-
-export const addQuestion = async (data: { name: string; quiz_id: number }) => {
-  try {
-    const response = await prisma.question.create({
       data: data,
     })
     return { error: false, message: 'ok', data: response.id }
@@ -235,38 +92,132 @@ export const addQuestion = async (data: { name: string; quiz_id: number }) => {
   }
 }
 
-export const updatedQuestion = async (data: {
+// Update quiz
+export const updateQuiz = async (data: {
   id: number
   name: string
-  quiz_id: number
+  userId: number
 }) => {
   try {
-    await prisma.question.update({
+    await prisma.quiz.update({
       where: {
         id: data.id,
+        creator_id: data.userId,
       },
-      data: data,
+      data: { name: data.name },
     })
-    return { error: false, message: 'ok' }
+    return { error: false }
   } catch (err) {
     return { error: true, message: err }
   }
 }
 
-export const deleteQuestion = async (id: number) => {
+// Delete quiz
+export const deleteQuiz = async (data: { id: number; userId: number }) => {
+  try {
+    await prisma.quiz.delete({
+      where: {
+        id: data.id,
+        creator_id: data.userId,
+      },
+    })
+    return { error: false }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+
+// Question related
+// Fetch creator related questions
+export const getAllQuestions = async (id: number) => {
+  try {
+    const questions = await prisma.question.findMany({
+      where: {
+        parent_quiz: {
+          creator_id: id,
+        },
+      },
+      orderBy: { id: 'asc' },
+    })
+    const translatedQuestions = questions.map((question) => {
+      return { id: question.id, name: question.name, quizId: question.quiz_id }
+    })
+    return { error: false, data: translatedQuestions }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// Add question
+export const addQuestion = async (data: { name: string; quiz_id: number }) => {
+  try {
+    const response = await prisma.question.create({
+      data: data,
+    })
+    return { error: false, data: response.id }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// Update question
+export const updatedQuestion = async (data: {
+  id: number
+  name: string
+  quiz_id: number
+  userId: number
+}) => {
+  try {
+    await prisma.question.update({
+      where: { id: data.id, parent_quiz: { creator_id: data.userId } },
+      data: { name: data.name },
+    })
+    return { error: false }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// Delete question
+export const deleteQuestion = async (data: { id: number; userId: number }) => {
   try {
     await prisma.question.delete({
       where: {
-        id: id,
+        id: data.id,
+        parent_quiz: { creator_id: data.userId },
       },
     })
-    return { error: false, message: 'ok' }
+    return { error: false }
   } catch (err) {
     return { error: true, message: err }
   }
 }
 
 // Answer related
+// Fetch creator relates answers
+export const getAllAnswers = async (id: number) => {
+  try {
+    const answers = await prisma.answer.findMany({
+      where: {
+        parent_question: {
+          parent_quiz: {
+            creator_id: id,
+          },
+        },
+      },
+      orderBy: { id: 'asc' },
+    })
+    const translatedAnswers = answers.map((answer) => {
+      return {
+        id: answer.id,
+        name: answer.name,
+        isCorrect: answer.correct,
+        questionId: answer.question_id,
+      }
+    })
+    return { error: false, message: 'ok', data: translatedAnswers }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// Add answer
 export const addAnswer = async (data: {
   name: string
   question_id: number
@@ -281,31 +232,74 @@ export const addAnswer = async (data: {
     return { error: true, message: err }
   }
 }
-
+// Update answer
 export const updateAnswer = async (data: {
   id: number
   name: string
-  question_id: number
   correct: boolean
+  question_id: number
+  userId: number
 }) => {
   try {
     await prisma.answer.update({
       where: {
         id: data.id,
+        parent_question: {
+          parent_quiz: {
+            creator_id: data.userId,
+          },
+        },
       },
-      data: data,
+      data: {
+        name: data.name,
+        correct: data.correct,
+      },
     })
     return { error: false, message: 'ok' }
   } catch (err) {
     return { error: true, message: err }
   }
 }
-
-export const deleteAnswer = async (id: number) => {
+// Delete answer
+export const deleteAnswer = async (data: { id: number; userId: number }) => {
   try {
     await prisma.answer.delete({
       where: {
-        id: id,
+        id: data.id,
+        parent_question: {
+          parent_quiz: {
+            creator_id: data.userId,
+          },
+        },
+      },
+    })
+    return { error: false, message: 'ok' }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// User related
+// Get users
+export const getAllUsers = async () => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+      },
+    })
+    return { error: false, message: 'ok', data: users }
+  } catch (err) {
+    return { error: true, message: err }
+  }
+}
+// Assign quiz to user
+export const assignQuizToUser = async (quizId: number, userId: number) => {
+  try {
+    await prisma.quizUser.create({
+      data: {
+        quiz_id: quizId,
+        user_id: userId,
       },
     })
     return { error: false, message: 'ok' }
