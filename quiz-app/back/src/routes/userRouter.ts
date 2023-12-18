@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import {
-  addQuizHandler,
   getAllQuizzesHandler,
   getQuizHandler,
   loginHandler,
@@ -16,7 +15,6 @@ userRouter.post('/login', loginHandler)
 userRouter.post('/register', registerHandler)
 userRouter.get('/verify-token', auth.userAuth, verifyTokenHandler)
 
-userRouter.post('/add-quiz', auth.userAuth, addQuizHandler)
 userRouter.get('/get-quizzes', auth.userAuth, getAllQuizzesHandler)
 userRouter.get('/get-quiz/:id', getQuizHandler)
 

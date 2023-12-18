@@ -47,18 +47,22 @@ model Answer {
 }
 
 model QuizUser {
-  id      Int  @id @default(autoincrement())
-  quiz    Quiz @relation(fields: [quiz_id], references: [id])
-  quiz_id Int
-  user    User @relation(fields: [user_id], references: [id])
-  user_id Int
-  score   Int?
+  id         Int          @id @default(autoincrement())
+  quiz       Quiz         @relation(fields: [quiz_id], references: [id])
+  quiz_id    Int
+  user       User         @relation(fields: [user_id], references: [id])
+  user_id    Int
+  score      Int?
+  AnswerUser AnswerUser[]
 }
 
 model AnswerUser {
-  id        Int    @id @default(autoincrement())
-  answer    Answer @relation(fields: [answer_id], references: [id])
-  answer_id Int
-  user      User   @relation(fields: [user_id], references: [id])
-  user_id   Int
+  id         Int      @id @default(autoincrement())
+  answer     Answer   @relation(fields: [answer_id], references: [id])
+  answer_id  Int
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  quiz_user  QuizUser @relation(fields: [quiz_id], references: [id])
+  quiz_id    Int
+  is_correct Boolean  @default(false)
 }
