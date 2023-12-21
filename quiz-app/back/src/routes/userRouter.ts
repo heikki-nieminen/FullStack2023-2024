@@ -16,7 +16,7 @@ userRouter.post('/register', registerHandler)
 userRouter.get('/verify-token', auth.userAuth, verifyTokenHandler)
 
 userRouter.get('/get-quizzes', auth.userAuth, getAllQuizzesHandler)
-userRouter.get('/get-quiz/:id', getQuizHandler)
+userRouter.get('/get-quiz/:id', auth.userAuth, getQuizHandler)
 
-userRouter.get('/get-user-quizzes')
-userRouter.get('/get-quiz/:id')
+userRouter.post('/start-quiz/:id', auth.userAuth)
+userRouter.post('/submit-answers', auth.userAuth)
