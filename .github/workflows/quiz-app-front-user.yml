@@ -1,25 +1,21 @@
 name: Build Front User
 run-name: Building frontend-user
-on:
-  push:
-    branches:
-      - main
-
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
+        uses: actions/setup-node@v4
 
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install --production
+        working-directory: ./quiz-app/front-user
 
-      - name: Build Front User
+      - name: Build Front Admin
         run: yarn run build
+        working-directory: ./quiz-app/front-user
