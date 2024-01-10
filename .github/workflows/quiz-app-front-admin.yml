@@ -1,5 +1,5 @@
 name: Build Front Admin
-
+run-name: Building frontend-admin
 on:
   push:
     branches:
