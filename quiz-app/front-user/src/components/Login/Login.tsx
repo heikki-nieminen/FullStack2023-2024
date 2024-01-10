@@ -15,7 +15,7 @@ export const Login = () => {
   return (
     <Paper sx={{ py: 2 }}>
       <Container>
-        <Typography variant={'h3'}>Register</Typography>
+        <Typography variant={'h3'}>Login</Typography>
         <OutlinedInput
           fullWidth
           required
@@ -34,7 +34,7 @@ export const Login = () => {
         <Button variant='contained' fullWidth>
           Login
         </Button>
-        <Typography component={Link} to={'login'}>
+        <Typography component={Link} to={'/register'}>
           Don't have an account?
         </Typography>
       </Container>

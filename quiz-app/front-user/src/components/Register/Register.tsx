@@ -19,11 +19,19 @@ export const Register = () => {
     setPasswordsMatch(password === repeatPassword)
   }
 
+  //const registerMutation = useRegisterUserMutation()
+  const [registerUser] = useRegisterUserMutation() // Destructure the mutate function
+
   const handleSubmitRegister = async () => {
     try {
-      const register = useRegisterUserMutation
-      await register({ username: username, password: password })
-    } catch (err) {}
+      const result = await registerUser({
+        username: username,
+        password: password,
+      })
+      console.log('Result:', result)
+    } catch (err) {
+      console.error('Error:', err)
+    }
   }
 
   return (
@@ -55,10 +63,15 @@ export const Register = () => {
           onChange={(e) => setRepeatPassword(e.target.value)}
           onBlur={handleRepeatedPassword}
         />
-        <Button variant='contained' fullWidth disabled={!passwordsMatch}>
+        <Button
+          variant='contained'
+          fullWidth
+          disabled={!passwordsMatch}
+          onClick={handleSubmitRegister}
+        >
           Register
         </Button>
-        <Typography component={Link} to={'login'}>
+        <Typography component={Link} to={'/login'}>
           Already have an account?
         </Typography>
       </Container>
