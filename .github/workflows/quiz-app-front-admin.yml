@@ -14,6 +14,8 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install
+        working-directory: ./quiz-app/front-admin
 
       - name: Build Front Admin
         run: yarn run build
+        working-directory: ./quiz-app/front-admin
