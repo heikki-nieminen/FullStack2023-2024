@@ -52,7 +52,7 @@ export const Quiz = () => {
     const testi = async () => {
       const response = await axios({
         method: 'GET',
-        url: `http://localhost:3001/get-quiz/${id}`,
+        url: `get-quiz/${id}`,
       })
       console.log('Response.data:', response.data)
     }
@@ -71,7 +71,9 @@ export const Quiz = () => {
     try {
       await axios({
         method: 'DELETE',
-        url: `http://localhost:3001/admin/delete-quiz/${quiz?.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/delete-quiz/${quiz?.id}`,
       })
       dispatch(deleteQuiz(quiz?.id))
       navigate('/quizzes')
@@ -86,7 +88,9 @@ export const Quiz = () => {
     try {
       await axios({
         method: 'PUT',
-        url: `http://localhost:3001/admin/update-quiz/${quiz?.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/update-quiz/${quiz?.id}`,
         data: { name: quizName },
       })
       dispatch(editQuiz({ id: quiz?.id, name: quizName }))
@@ -97,7 +101,7 @@ export const Quiz = () => {
   }
 
   const handleAccordionChange =
-    (panel: string) => (e: SyntheticEvent, isExpanded: boolean) => {
+    (panel: string) => (_: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
     }
 

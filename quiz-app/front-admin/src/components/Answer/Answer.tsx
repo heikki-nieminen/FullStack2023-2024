@@ -22,7 +22,9 @@ export const Answer: FC<AnswerProps> = ({ answer }) => {
     try {
       const response = await axios({
         method: 'DELETE',
-        url: `http://localhost:3001/admin/delete-answer/${answer.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/delete-answer/${answer.id}`,
       })
       console.log('Response:', response)
       dispatch(deleteAnswer(answer.id))
@@ -36,7 +38,9 @@ export const Answer: FC<AnswerProps> = ({ answer }) => {
     try {
       await axios({
         method: 'PUT',
-        url: `http://localhost:3001/admin/update-answer/${answer.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/update-answer/${answer.id}`,
         data: {
           ...answer,
           name: answerText,

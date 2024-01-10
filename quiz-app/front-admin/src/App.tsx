@@ -18,6 +18,7 @@ import { useEffect } from 'react'
 import { useAppSelector } from './state/hooks'
 import { loginUser, loginAdmin, selectUser } from './state/reducers/userSlice'
 import axios from 'axios'
+import { Users } from './components/Users/Users'
 
 export const App = () => {
   const dispatch: ThunkDispatch<RootState, null, AnyAction> = useDispatch()
@@ -34,7 +35,9 @@ export const App = () => {
           console.log('Trying to verify token')
           const response = await axios({
             method: 'GET',
-            url: 'http://localhost:3001/admin/verify-token',
+            url: `${
+              import.meta.env.VITE_BACKEND_API_ADDRESS
+            }/api/admin/verify-token`,
           })
           console.log('Token verification response:', response)
 
@@ -61,7 +64,7 @@ export const App = () => {
           console.log('Trying to verify token')
           const response = await axios({
             method: 'GET',
-            url: 'http://localhost:3001/verify-token',
+            url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/verify-token`,
           })
           console.log('Token verification response:', response)
 
@@ -104,6 +107,7 @@ export const App = () => {
         <Route path='*' element={<NotFound />} />
         <Route path='/' element={<Home />} />
         <Route path='quizzes' element={<Quizzes />} />
+        <Route path='users' element={<Users />} />
         <Route path='/quiz/:id' element={<Quiz />} />
       </Routes>
     </BrowserRouter>

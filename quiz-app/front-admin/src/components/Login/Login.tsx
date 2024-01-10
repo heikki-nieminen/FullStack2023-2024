@@ -36,7 +36,7 @@ export const Login: FC<LoginProps> = ({ open, setOpen }) => {
     try {
       const response = await axios({
         method: 'POST',
-        url: 'http://localhost:3001/admin/login',
+        url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/login`,
         data: {
           username: username,
           password: password,

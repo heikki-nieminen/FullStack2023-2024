@@ -13,8 +13,8 @@ const port = PORT
 
 app.use(bodyParser.json())
 app.use(cors())
-app.use('/', userRouter)
-app.use('/admin/', adminRouter)
+app.use('/api/', userRouter)
+app.use('/api/admin/', adminRouter)
 app.use(errorHandler)
 
 app.listen(port, () => {

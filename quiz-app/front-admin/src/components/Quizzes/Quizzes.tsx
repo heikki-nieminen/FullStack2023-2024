@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { NewQuiz } from './NewQuiz'
 
+// FIXME: Fetching quizzes right after login doesn't work, requires a refresh +bug
+
 export const Quizzes = () => {
   const quizzes = useAppSelector(selectQuizzes)
   const status = useAppSelector(selectStatus)

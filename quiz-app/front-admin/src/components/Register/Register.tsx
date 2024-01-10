@@ -47,7 +47,7 @@ export const Register: FC<RegisterProps> = ({ open, setOpen }) => {
       try {
         const response = await axios({
           method: 'POST',
-          url: 'http://localhost:3001/admin/register',
+          url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/register`,
           data: {
             username: username,
             password: password,

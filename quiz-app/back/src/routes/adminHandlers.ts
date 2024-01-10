@@ -9,6 +9,7 @@ import {
   getAllAnswers,
   getAllQuestions,
   getAllQuizzes,
+  getAllUsers,
   loginAdmin,
   registerAdmin,
   updateAnswer,
@@ -358,6 +359,26 @@ export const deleteAnswerHandler = async (
     res.status(200).json({ message: 'Answer deleted successfully' })
   } catch (err) {
     console.error('Error deleting answer:', err)
+    next(err)
+  }
+}
+
+// User related
+// Get users
+export const getAllUsersHandler: RouteHandler = async (
+  _: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log('Getting all users')
+  try {
+    const getAllUsersResult = await getAllUsers()
+    if (getAllUsersResult.error) {
+      return next(getAllUsersResult)
+    }
+    res.status(200).json({ data: getAllUsersResult.data })
+  } catch (err) {
+    console.error('Error getting users:', err)
     next(err)
   }
 }

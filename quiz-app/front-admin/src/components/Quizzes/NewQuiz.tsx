@@ -35,7 +35,7 @@ export const NewQuiz: FC<NewQuizProps> = ({ open, setOpen }) => {
     try {
       const response = await axios({
         method: 'POST',
-        url: 'http://localhost:3001/admin/add-quiz',
+        url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/add-quiz`,
         data: { name: name },
       })
       dispatch(addNewQuiz({ name: name, id: response.data.id }))

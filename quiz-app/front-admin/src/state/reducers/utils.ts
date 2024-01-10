@@ -7,11 +7,14 @@ export const fetchQuizzes = createAsyncThunk(
     console.log('Fetching quizzes')
     try {
       const state = getState() as RootState
-      const response = await fetch('http://localhost:3001/admin/get-quizzes', {
-        headers: {
-          Authorization: `Token ${state.user.token}`,
-        },
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/get-quizzes`,
+        {
+          headers: {
+            Authorization: `Token ${state.user.token}`,
+          },
+        }
+      )
       console.log('Successfully fetched quizzes:', response)
       const data = await response.json()
       return data
@@ -28,7 +31,7 @@ export const fetchQuestions = createAsyncThunk(
     try {
       const state = getState() as RootState
       const response = await fetch(
-        'http://localhost:3001/admin/get-questions',
+        `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/get-questions`,
         {
           headers: {
             Authorization: `Token ${state.user.token}`,
@@ -50,11 +53,14 @@ export const fetchAnswers = createAsyncThunk(
   async (_, { getState }) => {
     try {
       const state = getState() as RootState
-      const response = await fetch('http://localhost:3001/admin/get-answers', {
-        headers: {
-          Authorization: `Token ${state.user.token}`,
-        },
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/get-answers`,
+        {
+          headers: {
+            Authorization: `Token ${state.user.token}`,
+          },
+        }
+      )
       const data = await response.json()
       console.log('Answers:', data)
       return data
@@ -68,7 +74,9 @@ export const fetchAnswers = createAsyncThunk(
 export const fetchQuizById = createAsyncThunk(
   'quiz/getQuizById',
   async (quizId) => {
-    const response = await fetch(`http://localhost:3001/getQuiz/${quizId}`)
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/getQuiz/${quizId}`
+    )
     console.log('Response:', response)
     const data = await response.json()
     return data

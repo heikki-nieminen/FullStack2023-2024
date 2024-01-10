@@ -1,6 +1,5 @@
 import { NextFunction, Response } from 'express'
 import {
-  addQuiz,
   getAllQuizzes,
   getQuiz,
   loginUser,
@@ -8,7 +7,6 @@ import {
 } from '../queries/userQueries'
 import { RouteHandler } from '../types'
 import { RequestWithUser, hashPassword } from '../utils/authentication'
-import { SALT_ROUNDS } from '../config'
 
 // Authentication
 // Login handler
@@ -78,12 +76,10 @@ export const getAllQuizzesHandler: RouteHandler = async (
         next(getAllQuizzesResult)
       } else {
         console.log('Got quizzes:', getAllQuizzesResult)
-        res
-          .status(200)
-          .json({
-            message: getAllQuizzesResult.message,
-            data: getAllQuizzesResult.data,
-          })
+        res.status(200).json({
+          message: getAllQuizzesResult.message,
+          data: getAllQuizzesResult.data,
+        })
       }
     }
   } catch (err) {
@@ -97,9 +93,7 @@ export const getQuizHandler: RouteHandler = async (req, res, next) => {
   try {
     const getQuizResult = await getQuiz(quizId)
     if (getQuizResult.error) return next(getQuizResult)
-    res
-      .status(200)
-      .json({ data: getQuizResult.data })
+    res.status(200).json({ data: getQuizResult.data })
   } catch (err) {
     console.error('Error getting quiz:', err)
     next(err)

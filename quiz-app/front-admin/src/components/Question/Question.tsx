@@ -52,7 +52,9 @@ export const Question: FC<QuestionProps> = ({
     try {
       await axios({
         method: 'DELETE',
-        url: `http://localhost:3001/admin/delete-question/${question.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/delete-question/${question.id}`,
       })
       dispatch(deleteQuestion(question.id))
       dispatch(deleteAnswersByQuestionId(question.id))
@@ -65,7 +67,9 @@ export const Question: FC<QuestionProps> = ({
     try {
       await axios({
         method: 'PUT',
-        url: `http://localhost:3001/admin/update-question/${question.id}`,
+        url: `${
+          import.meta.env.VITE_BACKEND_API_ADDRESS
+        }/api/admin/update-question/${question.id}`,
         data: { ...question, name: questionName },
       })
       dispatch(editQuestion({ ...question, name: questionName }))

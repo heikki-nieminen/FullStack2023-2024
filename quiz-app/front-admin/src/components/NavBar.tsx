@@ -24,6 +24,7 @@ export const NavBar = () => {
   const pages = [
     { label: 'Home', link: '/' },
     { label: 'Quizzes', link: 'quizzes' },
+    { label: 'Users', link: 'users' },
   ]
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)

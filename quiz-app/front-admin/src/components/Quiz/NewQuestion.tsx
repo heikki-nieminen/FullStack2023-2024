@@ -40,7 +40,7 @@ export const NewQuestion: FC<NewQuestionProps> = ({
     try {
       const response = await axios({
         method: 'POST',
-        url: 'http://localhost:3001/admin/add-question',
+        url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/add-question`,
         data: { name: name, quizId: quizId },
       })
       dispatch(

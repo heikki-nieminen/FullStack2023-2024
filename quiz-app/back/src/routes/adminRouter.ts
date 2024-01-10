@@ -10,6 +10,7 @@ import {
   getAllAnswersHandler,
   getAllQuestionsHandler,
   getAllQuizzesHandler,
+  getAllUsersHandler,
   loginHandler,
   registerHandler,
   updateAnswerHandler,
@@ -48,5 +49,5 @@ adminRouter.put('/update-answer/:id', auth.adminAuth, updateAnswerHandler)
 adminRouter.delete('/delete-answer/:id', auth.adminAuth, deleteAnswerHandler)
 
 // User related
-adminRouter.get('/get-users', auth.adminAuth)
+adminRouter.get('/get-users', auth.adminAuth, getAllUsersHandler)
 adminRouter.post('/assign-quiz-to-user', auth.adminAuth)

@@ -1,4 +1,4 @@
-POST http://localhost:3001/add-quiz/
+POST add-quiz/
 Content-Type: application/json
 
 {

@@ -139,11 +139,11 @@ export const getQuiz = async (quizId: number) => {
       select: {
         id: true,
         name: true,
-        question: {
+        Question: {
           select: {
             id: true,
             name: true,
-            answer: {
+            Answer: {
               select: {
                 id: true,
                 name: true,

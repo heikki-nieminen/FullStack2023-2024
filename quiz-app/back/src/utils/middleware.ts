@@ -3,9 +3,9 @@ import { Error } from '../types'
 
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _: Request,
   res: Response,
-  next: NextFunction
+  __: NextFunction
 ) => {
   console.log('Error: ', err)
   switch (err.type) {

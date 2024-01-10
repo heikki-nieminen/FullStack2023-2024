@@ -48,7 +48,7 @@ export const NewAnswer: FC<NewAnswerProps> = ({
     try {
       const response = await axios({
         method: 'POST',
-        url: 'http://localhost:3001/admin/add-answer',
+        url: `${import.meta.env.VITE_BACKEND_API_ADDRESS}/api/admin/add-answer`,
         data: { name: name, questionId: questionId, isCorrect: isCorrect },
       })
       dispatch(
