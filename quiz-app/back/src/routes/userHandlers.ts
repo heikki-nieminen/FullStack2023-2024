@@ -1,43 +1,47 @@
-import { loginUser, registerUser } from '../queries/userQueries'
+import { NextFunction, Response } from 'express'
+import {
+  getAllQuizzes,
+  getQuiz,
+  loginUser,
+  registerUser,
+} from '../queries/userQueries'
 import { RouteHandler } from '../types'
 import { RequestWithUser, hashPassword } from '../utils/authentication'
 
+// Authentication
 // Login handler
 export const loginHandler: RouteHandler = async (req, res, next) => {
   try {
-    const userData = req.body
-    const loginUserResult = await loginUser(userData)
-    console.log('userData:', userData)
+    const loginUserResult = await loginUser(req.body)
     if (loginUserResult.error) return next(loginUserResult)
-    console.log('TOimiiko??')
     res.status(200).json({ token: loginUserResult.data?.token })
-  } catch (error) {
-    console.error('Login error:', error)
-    next(error)
+  } catch (err) {
+    return next({ message: err })
   }
 }
-
 // Register handler
 export const registerHandler: RouteHandler = async (req, res, next) => {
   try {
-    const userData = req.body
-    console.log('Userdata:', userData)
-    const hashedPassword = await hashPassword(userData.password)
-    userData.password = hashedPassword
-    const registerUserResult = await registerUser(userData)
-    if (registerUserResult?.error) return next(registerUserResult)
-    console.log('Testi')
-    // Login user and get token
-    const loginUserResult = await loginUser(userData)
-    if (loginUserResult?.error) return next(loginUserResult)
-    console.log('TOimiiko??')
+    const hashedPassword = await hashPassword(req.body.password)
+    const registerUserResult = await registerUser({
+      username: req.body.username,
+      password: hashedPassword,
+    })
+    if (registerUserResult.error) {
+      console.log('???')
+      return next(registerUserResult)
+    }
+    const loginUserResult = await loginUser(req.body)
+    if (loginUserResult.error) {
+      console.log('Täsä:', loginUserResult)
+      return next(loginUserResult)
+    }
     res.status(200).json({ token: loginUserResult.data?.token })
-  } catch (error) {
-    console.error('Register error:', error)
-    next(error)
+  } catch (err) {
+    console.log('Error:', err)
+    return next({ message: err })
   }
 }
-
 // Check token
 export const verifyTokenHandler: RouteHandler = async (
   req: RequestWithUser,
@@ -48,6 +52,55 @@ export const verifyTokenHandler: RouteHandler = async (
     res.status(200).json({ message: 'token validated', data: req.user })
   } catch (error) {
     console.error('Token validation error:', error)
-    next(error)
+    return next(error)
   }
 }
+
+// Quiz related
+// Fetch all quizzes for user
+export const getAllQuizzesHandler: RouteHandler = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log('Getting all quizzes')
+  try {
+    const userId = req.user?.id
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+    } else {
+      const getAllQuizzesResult = await getAllQuizzes(userId)
+
+      if (getAllQuizzesResult.error) {
+        next(getAllQuizzesResult)
+      } else {
+        console.log('Got quizzes:', getAllQuizzesResult)
+        res.status(200).json({
+          message: getAllQuizzesResult.message,
+          data: getAllQuizzesResult.data,
+        })
+      }
+    }
+  } catch (err) {
+    console.error('Error getting quizzes:', err)
+    next(err)
+  }
+}
+// Fetch single quiz
+export const getQuizHandler: RouteHandler = async (req, res, next) => {
+  const quizId = parseInt(req.params.id)
+  try {
+    const getQuizResult = await getQuiz(quizId)
+    if (getQuizResult.error) return next(getQuizResult)
+    res.status(200).json({ data: getQuizResult.data })
+  } catch (err) {
+    console.error('Error getting quiz:', err)
+    next(err)
+  }
+}
+// Submit quiz
+
+// Get score
+
+//
